@@ -94,13 +94,24 @@ jobs:
           head -40 buildozer.spec
           ls -la *.py 2>/dev/null | head -20 || true
 
-      - name: Build APK with Buildozer
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
+      -       - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          command: buildozer -v android debug
-          workdir: .
-          buildozer_version: stable
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev automake
+
+      - name: Install Buildozer and Cython
+        run: |
+          pip install --upgrade buildozer cython
+
+      - name: Build APK with Buildozer
+        id: buildozer
+        run: |
+          yes | buildozer -v android debug
 
       - name: Show APK outputs
         if: always()
